@@ -21,6 +21,7 @@ WS_URL - websocket endpoint
 CP_ID - ID of this VCP
 CP_USERNAME - if used for OCPP Authentication, defaults to CP_ID if only PASSWORD defined
 PASSWORD - if used for OCPP Authentication, otherwise can be left blank
+HANDSHAKE_TIMEOUT - an optional connection timeout, in milliseconds
 ```
 
 Run OCPP 1.6:

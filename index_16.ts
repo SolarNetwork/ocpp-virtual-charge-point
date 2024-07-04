@@ -10,6 +10,7 @@ const vcp = new VCP({
   ocppVersion: OcppVersion.OCPP_1_6,
   basicAuthUsername: process.env["CP_USERNAME"] ?? undefined,
   basicAuthPassword: process.env["PASSWORD"] ?? undefined,
+  handshakeTimeout: parseInt(process.env["HANDSHAKE_TIMEOUT"] ?? "0"),
   adminWsPort: parseInt(
     process.env["ADMIN_PORT"] ?? "9999"
   ),

@@ -21,6 +21,7 @@ interface VCPOptions {
   chargePointId: string;
   basicAuthUsername?: string;
   basicAuthPassword?: string;
+  handshakeTimeout?: number;
   adminWsPort?: number;
 }
 
@@ -58,6 +59,7 @@ export class VCP {
           ? `${this.vcpOptions.basicAuthUsername || this.vcpOptions.chargePointId}:${this.vcpOptions.basicAuthPassword}`
           : undefined,
         followRedirects: true,
+        handshakeTimeout: this.vcpOptions.handshakeTimeout || 0,
       });
 
       this.ws.on("open", () => resolve());
