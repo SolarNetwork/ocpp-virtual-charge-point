@@ -25,12 +25,16 @@ interface VCPOptions {
   adminWsPort?: number;
 }
 
+export type VCPCloseHook = (code: number, reason: string) => void;
+
 export class VCP {
   private ws?: WebSocket;
   private adminWs?: WebSocketServer;
   private messageHandler: OcppMessageHandler;
 
   private isFinishing: boolean = false;
+  
+  public closeHook?: VCPCloseHook;
 
   constructor(private vcpOptions: VCPOptions) {
     this.messageHandler = resolveMessageHandler(vcpOptions.ocppVersion);
@@ -49,7 +53,7 @@ export class VCP {
   async connect(): Promise<void> {
     logger.info(`Connecting... | ${util.inspect(this.vcpOptions)}`);
     this.isFinishing = false;
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       const websocketUrl =
         `${this.vcpOptions.endpoint}/${this.vcpOptions.chargePointId}`;
       const protocol = toProtocolVersion(this.vcpOptions.ocppVersion);
@@ -69,6 +73,10 @@ export class VCP {
       });
       this.ws.on("pong", () => {
         logger.info("Received PONG");
+      });
+      this.ws.on("error", (err:Error) => {
+        logger.error(`${err}`);
+        reject(err);
       });
       this.ws.on(
         "close",
@@ -143,7 +151,6 @@ export class VCP {
     this.adminWs?.close();
     delete this.ws;
     delete this.adminWs;
-    process.exit(1);
   }
 
   private _onMessage(message: string) {
@@ -190,6 +197,8 @@ export class VCP {
       return;
     }
     logger.info(`Connection closed. code=${code}, reason=${reason}`);
-    process.exit();
+    if (this.closeHook) {
+      this.closeHook(code, reason);
+    }
   }
 }
